@@ -1,19 +1,19 @@
-# @reef-defi/evm-provider.js
+# @dust-defi/evm-provider.js
 
-`evm-provider.js` implements a web3 provider which can interact with the [Reef chain EVM](https://github.com/reef-defi/reef-chain).
+`evm-provider.js` implements a web3 provider which can interact with the [Dust chain EVM](https://github.com/dust-defi/dust-chain).
 
-If you only care about developing Solidity contracts on the Reef chain, `@reef-defi/evm-provider.js` is used in our [Hardhat Reef environment](https://github.com/reef-defi/hardhat-reef). The environment simplifies and abstracts all the low-level intricacies, so you can only focus on the Solidity part. See [hardhat-reef-examples repo](https://github.com/reef-defi/hardhat-reef-examples/blob/master/scripts/flipper/deploy.js) for more examples.
+If you only care about developing Solidity contracts on the Dust chain, `@dust-defi/evm-provider.js` is used in our [Hardhat Dust environment](https://github.com/dustprotocol/hardhat-dust). The environment simplifies and abstracts all the low-level intricacies, so you can only focus on the Solidity part. See [hardhat-dust-examples repo](https://github.com/dustprotocol/hardhat-dust-examples/blob/master/scripts/flipper/deploy.js) for more examples.
 
-If you need more control, then it can also be used as a Substrate provider to query or to interact with the Reef chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
+If you need more control, then it can also be used as a Substrate provider to query or to interact with the Dust chain using the same calls as in the [Polkadot.js](https://polkadot.js.org/docs/api).
 
 ## Installation
 
-Install dependencies with `yarn` [see issue](https://github.com/reef-defi/evm-provider.js/issues/5#issuecomment-912389541).
+Install dependencies with `yarn` [see issue](https://github.com/dustprotocol/evm-provider.js/issues/5#issuecomment-912389541).
 
 ### Yarn
 
 ```bash
-yarn add @reef-defi/evm-provider
+yarn add @dust-defi/evm-provider
 ```
 
 ## Getting started
@@ -25,7 +25,7 @@ import {
   TestAccountSigningKey,
   Provider,
   Signer,
-} from "@reef-defi/evm-provider";
+} from "@dust-defi/evm-provider";
 import { WsProvider, Keyring } from "@polkadot/api";
 import { createTestPairs } from "@polkadot/keyring/testingPairs";
 import { KeyringPair } from "@polkadot/keyring/types";
@@ -77,7 +77,7 @@ with this object you can interact with the Substrate chain.
 If you want to interact with injected sources (e.g. from Polkadot{.js}) you can do the following:
 
 ```javascript
-import { Provider, Signer, } from "@reef-defi/evm-provider";
+import { Provider, Signer, } from "@dust-defi/evm-provider";
 import { WsProvider } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 
@@ -132,7 +132,7 @@ export default setup;
 
 ## EVM interaction
 
-Most, but not all, of `evm-provider.js` API is compatible with `ethers.js`. If you are not familiar with `ethers.js`, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/). See our [Reefswap example](https://github.com/reef-defi/reefswap/blob/653e6f4e77d228bba32fe233bff4a4811eae335e/src/deploy.ts) on how it uses the above `setup` script to deploy and interact with the EVM.
+Most, but not all, of `evm-provider.js` API is compatible with `ethers.js`. If you are not familiar with `ethers.js`, you can start by looking at its [documentation](https://docs.ethers.io/v5/single-page/). See our [Dustswap example](https://github.com/dust-defi/dustswap/blob/653e6f4e77d228bba32fe233bff4a4811eae335e/src/deploy.ts) on how it uses the above `setup` script to deploy and interact with the EVM.
 
 ### Get EVM address
 
@@ -156,8 +156,8 @@ import { createClaimEvmSignature } from './utils';
 import { Provider } from '.';
 
 const WS_URL = process.env.WS_URL || 'ws://127.0.0.1:9944';
-// reef address - 5H728gLgx4yuCSVEwGCAfLo3RtzTau9F6cTNqNJtrqqjACWq
-const reefPrivKeyRaw = process.env.REEF_PRIV_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
+// dust address - 5H728gLgx4yuCSVEwGCAfLo3RtzTau9F6cTNqNJtrqqjACWq
+const dustPrivKeyRaw = process.env.DUST_PRIV_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
 const ethPrivKey = process.env.ETH_PRIV_KEY || "0x81376b9868b292a46a1c486d344e427a3088657fda629b5f4a647822d329cd6a";
 
 const main = async (): Promise<void> =>  {
@@ -167,16 +167,16 @@ const main = async (): Promise<void> =>  {
     await provider.api.isReady;
 
     const keyring = new Keyring({ type: 'sr25519' });
-    const reefKey = keyring.addFromUri(reefPrivKeyRaw);
+    const dustKey = keyring.addFromUri(dustPrivKeyRaw);
     const ethKey = new ethers.Wallet(ethPrivKey);
 
-    const msg = createClaimEvmSignature(reefKey.address);
+    const msg = createClaimEvmSignature(dustKey.address);
     let signature = await ethKey.signMessage(msg);
 
     await provider.api.tx.evmAccounts.claimAccount(
         ethKey.address,
         signature
-    ).signAndSend(reefKey);
+    ).signAndSend(dustKey);
 
     process.exit();
 };
@@ -199,7 +199,7 @@ signer.claimDefaultAccount();
 before performing any EVM calls otherwise it may lead to `InsufficientBalance` errors.
 
 ## Gas limit and storage limit
-In addition to the gas limit (processing), the Reef chain also charges a [storage fee](https://docs.substrate.io/v3/runtime/smart-contracts/#storage-deposit). When you interact with the EVM, Reef chain will estimate both fees and as such the fees will be invisible to the user. This should work in 99% of cases. It assumes you have at least 60 REEF tokens on the signing account. However, sometimes the heuristics (usually for more complex contracts) are wrong. In this case you can force the values of `gasLimit` and `storageLimit` by adding them to the `options` dictionary at the end of every call, for example:
+In addition to the gas limit (processing), the Dust chain also charges a [storage fee](https://docs.substrate.io/v3/runtime/smart-contracts/#storage-deposit). When you interact with the EVM, Dust chain will estimate both fees and as such the fees will be invisible to the user. This should work in 99% of cases. It assumes you have at least 60 DUST tokens on the signing account. However, sometimes the heuristics (usually for more complex contracts) are wrong. In this case you can force the values of `gasLimit` and `storageLimit` by adding them to the `options` dictionary at the end of every call, for example:
 
 ```
 await factory.deploy(<contract_args>, {
@@ -211,13 +211,13 @@ await factory.deploy(<contract_args>, {
 If you require maximum flexibility `evm-provider` exports maximum gas and storage limit:
 
 ```
-import { MAX_GAS_LIMIT, MAX_STORAGE_LIMIT } from "@reef-defi/evm-provider";
+import { MAX_GAS_LIMIT, MAX_STORAGE_LIMIT } from "@dust-defi/evm-provider";
 ```
 which default to `U64MAX` and `U32MAX` respectively.
 
 ## Versions
-- versions 1.\*.\* work from Reef v8 chain onwards
+- versions 1.\*.\* work from Dust v8 chain onwards
   - no longer requires `resolutions` with `ethers@5.0.9`
-- versions 0.\*.\* work from Reef v0 to v7
+- versions 0.\*.\* work from Dust v0 to v7
 
 #### [Changelog](./CHANGELOG.md)

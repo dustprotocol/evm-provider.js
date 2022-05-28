@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { options } from '@reef-defi/api';
-import { EvmContractInfo, EvmAccountInfo } from '@reef-defi/types/interfaces';
+import { options } from '@dust-defi/api';
+import { EvmContractInfo, EvmAccountInfo } from '@dust-defi/types/interfaces';
 import type {
   Block,
   BlockTag,
@@ -753,7 +753,7 @@ export class Provider implements AbstractProvider {
       }
     }
 
-    // At least 60 REEF are needed to deploy
+    // At least 60 DUST are needed to deploy
     return BigNumber.from(60_000);
   }
 }

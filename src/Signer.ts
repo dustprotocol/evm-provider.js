@@ -156,7 +156,7 @@ export class Signer extends Abstractsigner implements TypedDataSigner {
     if (isConnented) return;
 
     const publicKey = decodeAddress(this._substrateAddress);
-    const data = 'Reef evm:' + Buffer.from(publicKey).toString('hex');
+    const data = 'Dust evm:' + Buffer.from(publicKey).toString('hex');
     const signature = await this._signMessage(evmAddress, data);
     const extrinsic = this.provider.api.tx.evmAccounts.claimAccount(
       evmAddress,

@@ -22,7 +22,7 @@ export const U64MAX = BigNumber.from('0xffffffffffffffff');
 export function createClaimEvmSignature(substrateAddress: string): Bytes {
   const publicKeySubstrate = decodeAddress(substrateAddress);
   let message: Bytes | string =
-    'reef evm:' + Buffer.from(publicKeySubstrate).toString('hex');
+    'dust evm:' + Buffer.from(publicKeySubstrate).toString('hex');
 
   if (typeof message === 'string') {
     message = toUtf8Bytes(message);
